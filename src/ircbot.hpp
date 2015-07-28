@@ -40,6 +40,8 @@ class IRCBot
     void Quit(std::string quit_message = "");
     void Say(std::string destination, std::string message);
     void Notice(std::string destination, std::string message);
+    void Mode(std::string destination, std::string mode);
+    void Quote(std::string message);
     void Tick();
 
     bool IsAlive() const;

@@ -133,6 +133,16 @@ void IRCBot::Notice(std::string destination, std::string message)
     this->ircsocket.send("NOTICE " + destination + " :" + message);
 }
 
+void IRCBot::Mode(std::string destination, std::string mode)
+{
+    this->ircsocket.send("MODE " + destination + " " + mode);
+}
+
+void IRCBot::Quote(std::string message)
+{
+    this->ircsocket.send(message);
+}
+
 void IRCBot::Tick()
 {
     if (this->ircsocket.connection.status == this->ircsocket.CONNECTION_OK)
