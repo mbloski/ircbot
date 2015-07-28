@@ -18,12 +18,8 @@ namespace irc
     struct user_t
     {
         std::string nick;
-	#if __cplusplus <= 199711L
         usermode mode;
         user_t() {mode = MODE_NONE;}
-	#else
-        usermode mode = MODE_NONE;
-	#endif
     };
 
     struct channel_t
