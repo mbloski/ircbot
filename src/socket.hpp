@@ -20,7 +20,7 @@ class Socket
 {
     private:
     sockaddr_in sockaddr;
-    const int timeout = 1;
+    static const int timeout = 1;
 
     protected:
 #ifdef __LINUX

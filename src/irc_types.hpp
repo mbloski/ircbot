@@ -18,7 +18,8 @@ namespace irc
     struct user_t
     {
         std::string nick;
-        usermode mode = MODE_NONE;
+        usermode mode;
+        user_t() {mode = MODE_NONE;}
     };
 
     struct channel_t
