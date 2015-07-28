@@ -5,6 +5,8 @@ IRCBot::IRCBot(std::string _host, size_t _port, std::string _nickname, std::vect
     this->RegisterHandlers();
     this->ircsocket.connect(_host, _port);
     this->nick = _nickname;
+    this->netinfo.host = _host;
+    this->netinfo.port = _port;
     this->Nick(this->nick);
     this->Register();
 
@@ -142,4 +144,8 @@ void IRCBot::Tick()
             this->hmn.execute(line, this);
         }
     }
+}
+
+bool IRCBot::IsAlive() const {
+    return this->ircsocket.connection.status != Socket::ConnectionStatus::CONNECTION_DEAD;
 }

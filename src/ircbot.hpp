@@ -19,6 +19,13 @@ class IRCBot
     public:
     std::string nick;
     irc::line_t line;
+
+    struct
+    {
+        std::string host;
+        size_t port;
+    } netinfo;
+
     std::map<std::string, std::unique_ptr<irc::channel_t> > channels;
     std::vector<std::string> autojoin_channels;
 
@@ -34,6 +41,8 @@ class IRCBot
     void Say(std::string destination, std::string message);
     void Notice(std::string destination, std::string message);
     void Tick();
+
+    bool IsAlive() const;
 };
 
 #endif
