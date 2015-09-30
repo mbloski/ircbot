@@ -3,6 +3,7 @@
 
 #include <unistd.h>
 #include <memory>
+#include <ctime>
 #include "socket.hpp"
 #include "handlermanager.hpp"
 #include "handlers/handlers.hpp"
@@ -14,6 +15,8 @@ class IRCBot
     private:
     Socket ircsocket;
     HandlerManager hmn;
+    size_t timeout_threshold = 600;
+    time_t server_idle_since;
     void RegisterHandlers();
 
     public:
@@ -34,6 +37,7 @@ class IRCBot
     irc::line_t Process(std::string line);
     void Nick(std::string nickname);
     void Register();
+    void Ping(std::string str);
     void Pong(std::string str);
     void Join(std::string channel);
     void Part(std::string channel, std::string part_message = "");

@@ -4,6 +4,7 @@ IRCBot::IRCBot(std::string _host, size_t _port, std::string _nickname, std::vect
 {
     this->RegisterHandlers();
     this->ircsocket.connect(_host, _port);
+    this->server_idle_since = std::time(0);
     this->nick = _nickname;
     this->netinfo.host = _host;
     this->netinfo.port = _port;
@@ -93,6 +94,11 @@ void IRCBot::Register()
     this->ircsocket.send("USER blo 0 * :Michael");
 }
 
+void IRCBot::Ping(std::string str)
+{
+    this->ircsocket.send("PING :" + str);
+}
+
 void IRCBot::Pong(std::string str)
 {
     this->ircsocket.send("PONG " + str);
@@ -151,7 +157,16 @@ void IRCBot::Tick()
         if (!line.str.empty())
         {
             std::cout << line.str << std::endl;
+            this->server_idle_since = std::time(0);
             this->hmn.execute(line, this);
+        }
+        else if (std::time(0) - this->server_idle_since == this->timeout_threshold / 2) // FIXME: this only works nice with 1s select timeout
+        {
+            this->Ping(this->nick);
+        }
+        else if (std::time(0) - this->server_idle_since > this->timeout_threshold)
+        {
+            this->ircsocket.close();
         }
     }
 }

@@ -44,6 +44,7 @@ int Socket::close()
 #else
     return ::closesocket(this->sock);
 #endif
+    this->connection.status = ConnectionStatus::CONNECTION_DEAD;
 }
 
 int Socket::select(SelectMode select_mode, int _timeout)
@@ -59,13 +60,24 @@ int Socket::select(SelectMode select_mode, int _timeout)
     fd_set *read_set = select_mode == SELECT_READ? &_set : NULL;
     fd_set *write_set = select_mode == SELECT_WRITE? &_set : NULL;
 
-    return ::select(this->sock + 1, read_set, write_set, NULL, &timeout);
+    int sel = ::select(this->sock + 1, read_set, write_set, NULL, &timeout);
+
+    if (FD_ISSET(this->sock, select_mode == SELECT_READ? read_set : write_set))
+    {
+        return 1;
+    }
+    else if (sel < 0)
+    {
+        return -1;
+    }
+
+    return 0;
 }
 
 int Socket::send(std::string str)
 {
     int s = this->select(SELECT_WRITE, this->timeout);
-    if (s <= 0)
+    if (s == -1)
     {
         return 0;
     }
@@ -83,18 +95,29 @@ std::string Socket::recv()
     do
     {
         int s = this->select(SELECT_READ, this->timeout);
-
-        if (s <= 0)
+        if (s == -1)
         {
             return ret;
         }
 
         socket_status = ::recv(this->sock, &buf, 1, 0);
-        ret += buf;
-        if (socket_status != 1)
+
+        if (socket_status == 1)
+        {
+            ret += buf;
+        }
+        else if (socket_status == 0)
+        {
+            this->connection.status = ConnectionStatus::CONNECTION_DEAD;
+            return ret;
+        }
+        else
         {
             switch (errno)
             {
+                case EWOULDBLOCK:
+                    return ret;
+                break;
                 default:
                     this->connection.status = ConnectionStatus::CONNECTION_DEAD;
                     return ret;
